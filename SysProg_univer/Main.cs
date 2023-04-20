@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -21,6 +22,7 @@ namespace SysProg_univer
             InitializeComponent();
         }
 
+        Record[] data_recs;
         string Logger
         {
             get { return textBox4.Text; }
@@ -54,7 +56,7 @@ namespace SysProg_univer
             results.Errors.Cast<CompilerError>().ToList().ForEach(error => Logger += error.ErrorText);
             Type RC = results.CompiledAssembly.GetType("RuntimeClass");
             var obj = Activator.CreateInstance(RC);
-            RC.GetConstructor(new[] { }, )
+            RC.GetConstructor(new[] { RC });
             bool cont = (Boolean)RC.GetField("continious").GetValue(obj);
             var flds = RC.GetFields();
             for (int i = 0; i < flds.Length; i++)
@@ -63,6 +65,90 @@ namespace SysProg_univer
                     flds[i].Name, flds[i].GetValue(obj), flds[i].FieldType);
             }
             Logger += "Итераций > 1 ? " + (cont ? "Да" : "Нет");
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (this.data_recs == null)
+                data_recs = new Record[0];
+            var aaaaaaaaaaaaa = new Record[data_recs.Length + 1];
+            Array.Copy(data_recs, aaaaaaaaaaaaa, data_recs.Length);
+            var bbbbbbbbbb = new Record("R_" + data_recs.Length, data_recs.Length % 2 == 0);
+            aaaaaaaaaaaaa[data_recs.Length] = bbbbbbbbbb;
+            data_recs = aaaaaaaaaaaaa;
+            UpdateRecords();
+        }
+
+        private void UpdateRecords()
+        {
+
+            listBox2.Items.Clear();
+            foreach (Record rec in data_recs)
+            {
+
+                listBox2.Items.Add(String.Format("{0}\t{1}", rec.isOpen, rec.Address));
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if (listBox2.SelectedItems.Count == 0 || listBox2.SelectedIndex == -1) return;
+            this.Enabled = false;
+            Record re = data_recs[listBox2.SelectedIndex];
+            UpdateRecord f = new UpdateRecord(re);
+            f.ShowDialog(this);
+            this.Enabled = true;
+            UpdateRecords();
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            if (listBox2.SelectedIndex == -1) return;
+            if (this.data_recs == null)
+                data_recs = new Record[0];
+            var aaaaaaaaaaaaa = new Record[data_recs.Length - 1];
+            Array.Copy(data_recs, aaaaaaaaaaaaa, listBox2.SelectedIndex);
+            Array.Copy(
+                data_recs,
+                listBox2.SelectedIndex + 1,
+                aaaaaaaaaaaaa,
+                listBox2.SelectedIndex,
+                data_recs.Length - listBox2.SelectedIndex - 1
+            );
+            data_recs = aaaaaaaaaaaaa;
+
+            var asd = listBox2.SelectedIndex;
+            UpdateRecords();
+            if (data_recs.Length > asd)
+             listBox2.SelectedIndex = asd;
+
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            if (openFileDialog1.ShowDialog() != DialogResult.OK)
+                return;
+            var data = File.ReadAllText(openFileDialog1.FileName);
+            data_recs = Record.Extract(data);
+            UpdateRecords();
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            if (saveFileDialog1.ShowDialog() != DialogResult.OK) return;
+            if (!File.Exists(saveFileDialog1.FileName)) File.Create(saveFileDialog1.FileName);
+            if (data_recs == null) return;
+
+            saveFileDialog1.OpenFile().Close();
+
+            using (var file = File.Open(saveFileDialog1.FileName,FileMode.OpenOrCreate))
+            using (var sr = new StreamWriter(file))
+                sr.Write(Record.Compress(data_recs));
         }
     }
 }
