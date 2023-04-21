@@ -25,13 +25,15 @@ namespace SysProg_univer
 
         private void UpdateRecord_FormClosing(object sender, FormClosingEventArgs e)
         {
-            record.Address = textBox1.Text;
-            record.isOpen = radioButton1.Checked;
+            
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            this.Close();
-        }
+			record.Address = textBox1.Text;
+			record.isOpen = radioButton1.Checked;
+			this.DialogResult = DialogResult.OK;
+			this.Close();
+		}
     }
 }
