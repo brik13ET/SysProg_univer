@@ -8,11 +8,11 @@ using System.Text.RegularExpressions;
 
 namespace SysProg_univer
 {
-    internal class SyntaxAnalyzer
+    public class SyntaxAnalyzerModel
     {
         private readonly string[] _codePieces;
 
-        public SyntaxAnalyzer()
+        public SyntaxAnalyzerModel()
         {
 
             _codePieces = new[] {
@@ -61,12 +61,12 @@ namespace SysProg_univer
         {
             var normCode = InjectClass(code);
             CompilerResults results = Compile(normCode);
-           
+
             if (results.Errors.Count != 0)
             {
                 results.Errors.Cast<CompilerError>().ToList().ForEach(error =>
                 {
-                    Output += '\n'+error.ErrorText;
+                    Output += '\n' + error.ErrorText;
                 });
                 return false;
             }
@@ -82,6 +82,6 @@ namespace SysProg_univer
             bool cont = (Boolean)rc.GetField("continious").GetValue(obj);
             return cont;
         }
-        
+
     }
 }

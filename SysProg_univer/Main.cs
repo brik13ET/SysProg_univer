@@ -1,81 +1,85 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Data.Entity;
-using System.Data.Entity.Migrations;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Net;
 using System.Windows.Forms;
-using System.Xml;
+using SysProg_univer.Presenters;
+using SysProg_univer.Views;
 
 namespace SysProg_univer
 {
-    public partial class Main : Form
+    public partial class Main : Form, ILLCall, ISyntaxAnalyzer, IRecordsContainer
     {
         public Main()
         {
             InitializeComponent();
-            sa = new SyntaxAnalyzer();
+            sa = new SyntaxAnalyzerPresenter(this);
+            llc = new LLCallPresenter(this);
+            rcontainer = new RecordsContainerPresenter(Properties.Settings.Default.connstr, this);
         }
 
-        SyntaxAnalyzer sa;
-        RecordLocal[] _dataRecs = new RecordLocal[0];
-        private string connstr = "Server=localhost;Database=Records;UID=sql_con;PWD=1111WWww;Integrated Security=True;";
+        SyntaxAnalyzerPresenter sa;
+        RecordsContainerPresenter rcontainer;
+        LLCallPresenter llc;
+
         private string Logger
         {
             get => textBox4.Text;
             set => textBox4.Text = $"{value}\r\n";
         }
-
-        private void button9_Click(object sender, EventArgs e)
+        public string LLdivident
         {
-            if (richTextBox1.Text == null)
-                Logger += "Отсутствует текст";
-            var res = sa.isContinuous(richTextBox1.Text);
-            Logger += $"Больше одной итерации ? {res}";
+            get => textBox1.Text;
+            set => textBox1.Text = value;
+        }
+        public string LLdivisor
+        {
+            get => textBox2.Text;
+            set => textBox2.Text = value;
+        }
+        public string LLresult
+        {
+            get => textBox3.Text;
+            set => textBox3.Text = value;
+        }
+        public string LLLog { get => Logger; set => Logger += value; }
+        public string SAResult
+        {
+            get => Logger;
+            set => Logger += value;
+        }
+        public string SAcode
+        {
+            get => richTextBox1.Text;
+            set => richTextBox1.Text = value;
+        }
+        public string[] RFancyOutput
+        {
+            get
+            {
+                string[] ret = new string[listBox2.Items.Count];
+                for (int i = 0; i < listBox2.Items.Count; i++)
+                {
+                    ret[i] = listBox2.Items[i].ToString();
+                }
+                return ret;
+
+            }
+            set
+            {
+                listBox2.Items.Clear();
+                foreach (var item in value)
+                    listBox2.Items.Add(item.ToString());
+            }
+        }
+        public string RLog
+        {
+            get => Logger;
+            set => Logger += value;
         }
 
-        private void button6_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                int a, b;
-                a = int.Parse(textBox1.Text);
-                b = int.Parse(textBox2.Text);
-                textBox3.Text = $"{LLRunner.call_asm_div(a, b)}";
-            }
-            catch (FormatException ex)
-            {
-                Logger += "Ошибка входных данных";
-                Logger += ex.Message;
-            }
-            catch (ArgumentException ex)
-            {
-                Logger += "Ошибка аргумента";
-                Logger += ex.Message;
-            }
-            catch (OverflowException ex)
-            {
-                Logger += "Ошибка размера входных данных";
-                Logger += ex.Message;
-            }
-            catch (Exception ex)
-            {
-                Logger += ex.Message;
-            }
-        }
-
-        // MVP
         private void button1_Click(object sender, EventArgs e)
         {
-            if (this._dataRecs == null)
-                _dataRecs = new RecordLocal[0];
-            var newRecord = new RecordLocal[_dataRecs.Length + 1];
             string uri = "";
-            Array.Copy(_dataRecs, newRecord, _dataRecs.Length);
-            var isOk = false;
+            bool isOk = false;
             if (Clipboard.ContainsText())
             {
                 uri = Clipboard.GetText();
@@ -83,114 +87,83 @@ namespace SysProg_univer
             }
 
             if (!isOk)
-                uri = "https://ssau.ru";
-
-
-            var created = new RecordLocal(uri, Net.isAccessable(uri));
-
-            Logger += String.Format("Request to `{0}`\t{1} {2}", uri, (int)Net.StatusCode,
-                Net.StatusDesc);
+                uri = "https://ssau.ru";      
+            
             this.Enabled = false;
-            UpdateRecord f = new UpdateRecord(created);
+            var created = new Record(uri, false);
+            var  f = new UpdateRecord(created, true);
             var dr = f.ShowDialog(this);
             this.Enabled = true;
+            Logger += f.NETStatusDesc;
             if (dr == DialogResult.OK)
             {
-                newRecord[_dataRecs.Length] = created;
-                _dataRecs = newRecord;
+                this.rcontainer.AddOrUpdate(created);
             }
-
-            UpdateRecords();
         }
-        
-
         private void button2_Click(object sender, EventArgs e)
         {
-            if (listBox2.SelectedItems.Count == 0 || listBox2.SelectedIndex == -1) return;
-            RecordLocal re = _dataRecs[listBox2.SelectedIndex];
-            this.Enabled = false;
-            UpdateRecord f = new UpdateRecord(re);
-            f.ShowDialog(this);
+            if (listBox2.SelectedIndex == -1)
+                listBox2.SelectedIndex = listBox2.Items.Count - 1;
+            if (listBox2.SelectedIndex >= rcontainer.Length)
+                listBox2.SelectedIndex = rcontainer.Length - 1;
+
+            var rec = rcontainer[listBox2.SelectedIndex];
+            var f = new UpdateRecord(rec);
+            var dr = f.ShowDialog(this);
             this.Enabled = true;
-
-            UpdateRecords();
+            Logger += f.NETStatusDesc;
+            if (dr == DialogResult.OK)
+            {
+                this.rcontainer.Update(rec);
+            }
         }
-
         private void button3_Click(object sender, EventArgs e)
         {
-            if (listBox2.SelectedIndex == -1) return;
-            if (this._dataRecs == null)
-                _dataRecs = new RecordLocal[0];
-            var last = new RecordLocal[_dataRecs.Length - 1];
+            if (listBox2.SelectedIndex == -1)
+                listBox2.SelectedIndex = listBox2.Items.Count - 1;
+            if (listBox2.SelectedIndex >= rcontainer.Length)
+                listBox2.SelectedIndex = rcontainer.Length - 1;
 
-
-            Array.Copy(_dataRecs, last, listBox2.SelectedIndex);
-            Array.Copy(
-                _dataRecs,
-                listBox2.SelectedIndex + 1,
-                last,
-                listBox2.SelectedIndex,
-                _dataRecs.Length - listBox2.SelectedIndex - 1
-            );
-            _dataRecs = last;
-
-            var asd = listBox2.SelectedIndex;
-            UpdateRecords();
-            if (_dataRecs.Length > asd)
-                listBox2.SelectedIndex = asd;
-        }
-
-        private void UpdateRecords()
-        {
-            listBox2.Items.Clear();
-            string[] uris = new string[_dataRecs.Length];
-            foreach (RecordLocal rec in _dataRecs)
-            {
-
-                listBox2.Items.Add(String.Format("{0}\t{1}", rec.isOpen, rec.url));
-            }
+            rcontainer.Remove(listBox2.SelectedIndex);
         }
         private void button5_Click(object sender, EventArgs e)
         {
             if (openFileDialog1.ShowDialog() != DialogResult.OK)
                 return;
-            var data = File.ReadAllText(openFileDialog1.FileName);
-            _dataRecs = RecordLocal.Extract(data);
-            UpdateRecords();
+            rcontainer.Load(openFileDialog1.FileName);
         }
-
         private void button4_Click(object sender, EventArgs e)
         {
-            if (saveFileDialog1.ShowDialog() != DialogResult.OK) return;
-            if (!File.Exists(saveFileDialog1.FileName)) File.Create(saveFileDialog1.FileName);
-            if (_dataRecs == null) return;
-
-            saveFileDialog1.OpenFile().Close();
-
-            using (var file = File.Open(saveFileDialog1.FileName, FileMode.OpenOrCreate))
-            using (var sr = new StreamWriter(file))
-                sr.Write(RecordLocal.Compress(_dataRecs));
+            rcontainer.Save(openFileDialog1.FileName);
         }
-
         private void button10_Click(object sender, EventArgs ev)
         {
-            using (var context = new DBE_Context(connstr))
-            {
-                for (int i = 0; i < _dataRecs.Length; i++)
-                {
-                    var dbe = new DbRecord(_dataRecs[i]);
-                    context.records.AddOrUpdate(dbe);
-                    
-                }
-                context.SaveChanges();
-                _dataRecs = new RecordLocal[context.records.Count()];
-                var x = (from r in context.records select r).ToList();
-                for (int i = 0; i < _dataRecs.Length; i++)
-                {
-                    _dataRecs[i] = new RecordLocal(x[i]);
-                }
-            }
-            UpdateRecords();
+            rcontainer.DbPush();
+        }
+        private void button11_Click(object sender, EventArgs e)
+        {
+            rcontainer.DbPull();
+        }
+        private void button9_Click(object sender, EventArgs e)
+        {
+            sa.Analyze();
+        }
+        private void button6_Click(object sender, EventArgs e)
+        {
+            llc.call();
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            if (openFileDialog1.ShowDialog() != DialogResult.OK)
+                return;
+            richTextBox1.Text = File.ReadAllText(openFileDialog1.FileName);
+        }
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+            if (saveFileDialog1.ShowDialog() != DialogResult.OK) return;
+            File.WriteAllText(saveFileDialog1.FileName, richTextBox1.Text);
         }
     }
 }

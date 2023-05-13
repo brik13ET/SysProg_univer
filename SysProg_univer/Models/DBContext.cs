@@ -3,9 +3,9 @@ using System.Data.Entity;
 
 namespace SysProg_univer
 {
-    public class DBE_Context : DbContext
+    public class DbContext : System.Data.Entity.DbContext
     {
-        public DBE_Context(string str = "DatabaseConnecionString") : base(str)
+        public DbContext(string str = "DatabaseConnecionString") : base(str)
         {
 
             this.Configuration.AutoDetectChangesEnabled = false;
@@ -13,6 +13,6 @@ namespace SysProg_univer
             this.Database.CommandTimeout = 5;
         }
 
-        public DbSet<DbRecord> records { get; set; }
+        public DbSet<Record> records { get; set; }
     }
 }

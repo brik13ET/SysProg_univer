@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SysProg_univer.Presenters;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -8,11 +9,12 @@ using System.Threading.Tasks;
 
 namespace SysProg_univer
 {
-    public static class Net
+    static public class Net
     {
-        static Net (){
-            
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+        static Net ()
+        {
+            //SSL workaround
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12; 
             ServicePointManager.ServerCertificateValidationCallback +=
                 delegate
                 {
@@ -20,9 +22,8 @@ namespace SysProg_univer
                 };
         }
 
-        public static bool isAccessable(string uri)
+        public static bool isAccessable(string uri, out string desc, out HttpStatusCode code)
         {
-
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest
                 .Create(uri);
             webRequest.AllowAutoRedirect = false;
@@ -32,18 +33,15 @@ namespace SysProg_univer
             {
                 HttpWebResponse response = (HttpWebResponse)webRequest.GetResponse();
                 open = response.StatusCode == HttpStatusCode.OK;
-                StatusCode = response.StatusCode;
-                StatusDesc = response.StatusDescription;
+                desc= response.StatusDescription;
+                code = response.StatusCode;
             }
             catch (WebException ex)
             {
-                StatusDesc = ex.Status.ToString();
-                open = false;
+                code = HttpStatusCode.InternalServerError;
+                desc = ex.Status.ToString();
             }
             return open;
         }
-
-        public static HttpStatusCode StatusCode { get; set; }
-        public static string StatusDesc { get; set; }
     }
 }
