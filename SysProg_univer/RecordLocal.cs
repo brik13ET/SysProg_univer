@@ -8,27 +8,31 @@ using System.Threading.Tasks;
 
 namespace SysProg_univer
 {
-    public class Record
+    public class RecordLocal
     {
-        public string Address { get; set; }
+        public string url { get; set; }
         public bool isOpen{ get; set; }
-        public Record(string addr, bool open)
+        public RecordLocal(string addr, bool open)
         {   
-            this.Address = addr;
+            this.url = addr;
             this.isOpen = open;
+        }
+
+        public RecordLocal(DbRecord m)
+        {
+            url = m.Url;
+            isOpen = m.isOpen;
         }
 
         public override string ToString()
         {
-            return String.Format("URI: {0}\nOpen: {1}", this.Address, this.isOpen);
+            return String.Format("URI: {0}\nOpen: {1}", this.url, this.isOpen);
         }
 
-        // URI: apsofjskukvgi
-        // Mode: true/false
-        public static Record[] Extract(string text)
+        public static RecordLocal[] Extract(string text)
         {
             var pattern = @"(URI: (.*)\nOpen: (True|False)\n?)|(^[\s\n\r]*$)";
-            List<Record> records = new List<Record>();
+            List<RecordLocal> records = new List<RecordLocal>();
             if (text.Split('\n').Length % 2 == 1 || Regex.Replace(text, pattern, "").Length != 0)
                 throw new ArgumentOutOfRangeException("text", "Одна или несколько записей содержат неполные данные.");
             var matches = Regex.Matches(text, pattern);
@@ -42,16 +46,16 @@ namespace SysProg_univer
                     Console.WriteLine("\t{0}: `{1}`", alskd ++, grp.Value.Replace("\n","\\n"));
                 }
                 if (match.Success && !Regex.Match(match.Groups[2].Value, @"^[\s\n\r]*$").Success)
-                records.Add(new Record(match.Groups[2].Value, match.Groups[3].Value == "True"));
+                records.Add(new RecordLocal(match.Groups[2].Value, match.Groups[3].Value == "True"));
             }
             return records.ToArray();
         }
-        public static string Compress(Record[] record)
+        public static string Compress(RecordLocal[] record)
         {
             string ret = "";
             int asd = 0;
             if (record != null)
-            foreach (Record r in record)
+            foreach (RecordLocal r in record)
             {
                 ret += r.ToString();
                     if (asd+1 < record.Length)

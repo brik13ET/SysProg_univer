@@ -10,4 +10,15 @@
 // Добавьте сюда заголовочные файлы для предварительной компиляции
 #include "framework.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+    int __fastcall asm_div(int, int);
+    __declspec(dllexport) int __stdcall call_asm_div(int, int);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif //PCH_H

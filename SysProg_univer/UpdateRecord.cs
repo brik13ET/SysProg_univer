@@ -13,12 +13,12 @@ namespace SysProg_univer
 {
     public partial class UpdateRecord : Form
     {
-        private Record record;
-        public UpdateRecord(Record r)
+        private RecordLocal record;
+        public UpdateRecord(RecordLocal r)
         {
             InitializeComponent();
             record = r;
-            textBox1.Text = r.Address;
+            textBox1.Text = r.url;
             radioButton1.Checked = r.isOpen;
             radioButton2.Checked = !r.isOpen;
         }
@@ -30,7 +30,7 @@ namespace SysProg_univer
 
         private void button1_Click(object sender, EventArgs e)
         {
-			record.Address = textBox1.Text;
+			record.url = textBox1.Text;
 			record.isOpen = radioButton1.Checked;
 			this.DialogResult = DialogResult.OK;
 			this.Close();
