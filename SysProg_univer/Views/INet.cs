@@ -1,11 +1,11 @@
-﻿using System.Net;
+﻿using SysProgUniver.Views;
+using System.Net;
 
-namespace SysProg_univer.Presenters
+namespace SysProgUniver.Presenters
 {
-    public interface INet
+    public interface INet : ILog
     {
 
-        bool NETAccessible { get; set; }
-        string NETStatusDesc { get; set; }
+        bool NetAccessible { get; set; }
     }
 }

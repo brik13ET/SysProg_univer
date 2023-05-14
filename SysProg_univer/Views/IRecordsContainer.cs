@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SysProg_univer.Views
+﻿namespace SysProgUniver.Views
 {
-    public interface IRecordsContainer
+    public interface IRecordsContainer : ILog
     {
         string[] RFancyOutput { get; set; }
-        string RLog { get; set; }
     }
 }

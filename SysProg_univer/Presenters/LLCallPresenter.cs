@@ -1,20 +1,21 @@
 ﻿using System;
+using System.Globalization;
 
-namespace SysProg_univer.Presenters
+namespace SysProgUniver.Presenters
 {
     public class LLCallPresenter
     {
         private ILLCall view;
         public LLCallPresenter(ILLCall view) { this.view = view; }
-        public void call()
+        public void Invoke()
         {
             string ret = "";
             try
             {
                 int a, b;
-                a = int.Parse(view.LLdivident);
-                b = int.Parse(view.LLdivisor);
-                view.LLresult = $"{LLRunner.call_asm_div(a, b)}";
+                a = int.Parse(view.LLdivident, CultureInfo.InvariantCulture);
+                b = int.Parse(view.LLdivisor, CultureInfo.InvariantCulture);
+                view.LLresult = $"{LLRunner.AsmDiv(a, b).ToString(CultureInfo.InvariantCulture)}";
                 ret = "Success LLCall";
             }
             catch (FormatException ex)
@@ -36,7 +37,7 @@ namespace SysProg_univer.Presenters
             {
                 ret += ex.Message;
             }
-            view.LLLog = ret;
+            view.Log = ret;
         }
     }
 }

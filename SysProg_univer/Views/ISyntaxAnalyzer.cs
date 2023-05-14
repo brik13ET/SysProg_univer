@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using SysProgUniver.Views;
 
-namespace SysProg_univer.Presenters
+namespace SysProgUniver.Presenters
 {
-    public interface ISyntaxAnalyzer
+    public interface ISyntaxAnalyzer : ILog
     {
-        string SAResult { get; set; }
         string SAcode { get; set; }
     }
 }

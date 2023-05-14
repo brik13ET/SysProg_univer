@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SysProg_univer.Presenters
+namespace SysProgUniver.Presenters
 {
     public class SyntaxAnalyzerPresenter
     {
@@ -17,9 +17,9 @@ namespace SysProg_univer.Presenters
             string ret = "";
             if (isa.SAcode == null || isa.SAcode.Length == 0)
                 ret += "Отсутствует текст";
-            var res = model.isContinuous(isa.SAcode);
+            var res = model.IsContinuous(isa.SAcode);
             ret += $"Больше одной итерации ? {res}";
-            isa.SAResult = ret;
+            isa.Log = ret;
         }
     }
 }

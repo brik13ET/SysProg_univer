@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.IO;
 using System.Linq;
-using SysProg_univer.Views;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using SysProgUniver.Views;
 
-namespace SysProg_univer.Presenters
+namespace SysProgUniver.Presenters
 {
     public class RecordsContainerPresenter
     {
@@ -28,15 +31,20 @@ namespace SysProg_univer.Presenters
         public void Load(string filename)
         {
             string data = File.ReadAllText(filename);
-            Record[] FileRec = null;
+            Record[] FileRec;
             try
             {
                 FileRec = Record.Extract(data);
             }
-            catch (ArgumentException ex)
+            catch (ArgumentException  ex)
             {
-                view.RLog = "Parsing file failed";
-                view.RLog = ex.Message;
+                view.Log = "Parsing file failed";
+                view.Log = ex.Message;
+                return;
+            }catch (FormatException ex)
+            {
+                view.Log = "Parsing file failed";
+                view.Log = ex.Message;
                 return;
             }
             foreach (Record rec in FileRec)
@@ -54,22 +62,32 @@ namespace SysProg_univer.Presenters
         }
         public void DbPull()
         {
-            using (var context = new DbContext(ConnectionString))
+            using (var context = new DBContext(ConnectionString))
             {
-                foreach (Record rec in context.records)
+                var promise = new Task(()=>
                 {
-                    AddOrUpdate(rec);
+                    foreach (Record rec in context.Records)
+                        AddOrUpdate(rec);
+                });
+
+                Cursor.Current = Cursors.WaitCursor;
+                promise.Start();
+                while (!promise.IsCompleted && !promise.IsFaulted)
+                {
+                    Application.DoEvents();
                 }
+                promise.Dispose();
+                Cursor.Current = Cursors.Default;
             }
             UIUpdate();
         }
 
         public void DbPush()
         {
-            using (var context = new DbContext(ConnectionString))
+            using (var context = new DBContext(ConnectionString))
             {
-                context.records.RemoveRange(from i in context.records select i);
-                context.records.AddRange(container);
+                context.Records.RemoveRange(from i in context.Records select i);
+                context.Records.AddRange(container);
                 context.SaveChanges();
             }
             UIUpdate();
@@ -80,7 +98,7 @@ namespace SysProg_univer.Presenters
             var buf = new string[container.Count];
             for (int i = 0; i < container.Count; i++)
             {
-                buf[i] = $"{container[i].isOpen}\t{container[i].Url}\n";
+                buf[i] = $"{container[i].CheckedAt}\t{container[i].IsOpen}\t{container[i].Url}\n";
             }
             view.RFancyOutput = buf;
         }
@@ -90,7 +108,7 @@ namespace SysProg_univer.Presenters
             if (q.Count() != 0)
             {
 
-                view.RLog = "Has same element";
+                view.Log = "Has same element";
                 return;
             }
             this.container.Add(record);
@@ -102,18 +120,19 @@ namespace SysProg_univer.Presenters
             var find = (from i in this.container.AsQueryable() where i.Url == record.Url select i); 
             if (find.Count() == 0)
             {
-                view.RLog = "No element";
+                view.Log = "No element";
                 return;
             }
 
-            find.ToArray()[0].isOpen = record.isOpen;
+            find.ToArray()[0].IsOpen = record.IsOpen;
+            find.ToArray()[0].CheckedAt = record.CheckedAt;
             UIUpdate();
         }
         public void Update(int index, Record record)
         {
             if (this.container.Count < index)
             {
-                view.RLog = "Index mismatch";
+                view.Log = "Index mismatch";
                 return;
             }
             this.container[index] = record;
@@ -124,13 +143,14 @@ namespace SysProg_univer.Presenters
             var find = (from i in this.container.AsQueryable() where i.Url == record.Url select i);
             if (find.Count() == 0)
             {
-                view.RLog = "No element. Using Add()";
+                view.Log = "No element. Using Add()";
                 this.container.Add(record);
                 UIUpdate();
                 return;
             }
-            view.RLog = "Has element. Using Update()";
-            find.ToArray()[0].isOpen = record.isOpen;
+            view.Log = "Has element. Using Update()";
+            find.ToArray()[0].IsOpen = record.IsOpen;
+            find.ToArray()[0].CheckedAt = record.CheckedAt;
 
             UIUpdate();
         }
@@ -140,7 +160,7 @@ namespace SysProg_univer.Presenters
             var find = (from i in this.container.AsQueryable() where i.Url == record.Url select i);
             if (find.Count() == 0)
             {
-                view.RLog = "No element";
+                view.Log = "No element";
                 return;
             }
             this.container.Remove(record);
@@ -150,7 +170,7 @@ namespace SysProg_univer.Presenters
         {
             if (this.container.Count < index)
             {
-                view.RLog = "Index mismatch";
+                view.Log = "Index mismatch";
                 return;
             }
             this.container.RemoveAt(index);

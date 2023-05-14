@@ -1,11 +1,18 @@
 ﻿using System;
 using System.Data.Entity;
 
-namespace SysProg_univer
+namespace SysProgUniver
 {
-    public class DbContext : System.Data.Entity.DbContext
+    public class DBContext : System.Data.Entity.DbContext
     {
-        public DbContext(string str = "DatabaseConnecionString") : base(str)
+        public DBContext(string str) : base(str)
+        {
+
+            this.Configuration.AutoDetectChangesEnabled = false;
+            this.Configuration.LazyLoadingEnabled = false;
+            this.Database.CommandTimeout = 5;
+        }
+        public DBContext() : base("DatabaseConnecionString")
         {
 
             this.Configuration.AutoDetectChangesEnabled = false;
@@ -13,6 +20,7 @@ namespace SysProg_univer
             this.Database.CommandTimeout = 5;
         }
 
-        public DbSet<Record> records { get; set; }
+
+        public DbSet<Record> Records { get; set; }
     }
 }

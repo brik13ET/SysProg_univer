@@ -1,4 +1,4 @@
-﻿using SysProg_univer.Presenters;
+﻿using SysProgUniver.Presenters;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -7,11 +7,11 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SysProg_univer
+namespace SysProgUniver
 {
-    static public class Net
+    static public class Network
     {
-        static Net ()
+        static Network ()
         {
             //SSL workaround
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12; 
@@ -22,10 +22,10 @@ namespace SysProg_univer
                 };
         }
 
-        public static bool isAccessable(string uri, out string desc, out HttpStatusCode code)
+        public static bool IsAccessable(string uri, out string desc, out HttpStatusCode code)
         {
             HttpWebRequest webRequest = (HttpWebRequest)WebRequest
-                .Create(uri);
+                .Create(new Uri(uri));
             webRequest.AllowAutoRedirect = false;
             webRequest.Timeout = 1000;
             bool open = false;

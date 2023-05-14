@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace SysProg_univer.Views
+namespace SysProgUniver.Views
 {
     public interface IRecord
     {
         bool Accessable { get; set; }
-        string URL { get; set; }
+        string Url { get; set; }
+        DateTime DT { get; set; }
     }
 }

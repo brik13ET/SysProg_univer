@@ -1,4 +1,4 @@
-﻿namespace SysProg_univer.Properties {
+﻿namespace SysProgUniver.Properties {
     
     
     // Этот класс позволяет обрабатывать определенные события в классе параметров:

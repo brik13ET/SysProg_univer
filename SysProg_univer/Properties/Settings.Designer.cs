@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace SysProg_univer.Properties {
+namespace SysProgUniver.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]

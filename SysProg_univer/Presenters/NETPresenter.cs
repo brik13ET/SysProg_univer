@@ -1,18 +1,21 @@
-﻿using System.Net;
+﻿using System;
+using System.Globalization;
+using System.Net;
 
-namespace SysProg_univer.Presenters
+namespace SysProgUniver.Presenters
 {
-    public class NETPresenter
+    public class NetPresenter
     {
-        private INet view;
-
-        public NETPresenter(INet view, string url)
+        public NetPresenter(INet view, string url)
         {
-            this.view = view;
-            string tmpDesc = "";
+            if (view == null)
+            {
+                throw new ArgumentNullException("view","INet view not provided");
+            }
+            string tmpDesc;
             HttpStatusCode statusCode;
-            view.NETAccessible = Net.isAccessable(url, out tmpDesc, out statusCode);
-            view.NETStatusDesc = $"{(int)statusCode} {tmpDesc}";
+            view.NetAccessible = Network.IsAccessable(url, out tmpDesc, out statusCode);
+            view.Log = $"{((int)statusCode).ToString(CultureInfo.InvariantCulture)} {tmpDesc}";
         }
     }
 }

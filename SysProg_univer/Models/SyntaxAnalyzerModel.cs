@@ -6,13 +6,13 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
-namespace SysProg_univer
+namespace SysProgUniver
 {
     public class SyntaxAnalyzerModel
     {
-        private readonly string[] _codePieces;
+        private static readonly string[] _codePieces;
 
-        public SyntaxAnalyzerModel()
+        static SyntaxAnalyzerModel()
         {
 
             _codePieces = new[] {
@@ -36,7 +36,7 @@ namespace SysProg_univer
 
         public string Output { get; set; }
 
-        private string InjectClass(string code)
+       static private string InjectClass(string code)
         {
             int pasteIndex = Regex.Match(code, @"\}\s*while\s*\(\s*").Index;
             if (pasteIndex == 0)
@@ -46,18 +46,19 @@ namespace SysProg_univer
             return string.Format("{0}{1}{2}", _codePieces[0], code, _codePieces[2]);
         }
 
-        private CompilerResults Compile(string code)
+        static private CompilerResults Compile(string code)
         {
             CSharpCodeProvider cSharpCodeProvider;
-            var options = new Dictionary<string, string>();
-            options.Add("CompilerVersion", "v4.0");
+            var options = new Dictionary<string, string>() { { "CompilerVersion", "v4.0" } };
             cSharpCodeProvider = new CSharpCodeProvider(options);
             var parameters = new CompilerParameters(new[] { "mscorlib.dll", "System.Core.dll" });
             parameters.GenerateExecutable = false;
-            return cSharpCodeProvider.CompileAssemblyFromSource(parameters, code);
+            var ret = cSharpCodeProvider.CompileAssemblyFromSource(parameters, code);
+            cSharpCodeProvider.Dispose();
+            return ret;
         }
 
-        public bool isContinuous(string code)
+        public bool IsContinuous(string code)
         {
             var normCode = InjectClass(code);
             CompilerResults results = Compile(normCode);

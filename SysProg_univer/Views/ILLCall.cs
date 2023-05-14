@@ -1,10 +1,11 @@
-﻿namespace SysProg_univer.Presenters
+﻿using SysProgUniver.Views;
+
+namespace SysProgUniver.Presenters
 {
-    public interface ILLCall
+    public interface ILLCall : ILog
     {
         string LLdivident { get; set; }
         string LLdivisor { get; set; }
         string LLresult { get; set; }
-        string LLLog { get; set; }
     }
 }
