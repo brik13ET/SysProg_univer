@@ -158,7 +158,7 @@ namespace SysProgUniver
         {
             if (saveFileDialog1.ShowDialog() != DialogResult.OK)
                 return;
-            rcontainer.Save(openFileDialog1.FileName);
+            rcontainer.Save(saveFileDialog1.FileName);
         }
         private void Button10Click(object sender, EventArgs ev)
         {

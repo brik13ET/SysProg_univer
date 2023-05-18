@@ -29,7 +29,7 @@ namespace SysProgUniver
         {
             if (text == null)
                 return null;
-            var pattern = @"(URI: (.*)\nOpen: (True|False)\nDT: (\d\d?\.\d\d?\.\d\d\d\d\s\d\d?:\d\d?:\d\d?)[\s\r\n\]?)|(^[\s\n\r]*)";
+            var pattern = @"(URI: (.*)\nOpen: (True|False)\nDT: (\d\d?\/\d\d?\/\d\d\d\d\s\d\d?:\d\d?:\d\d?)[\s\r\n\]?)|(^[\s\n\r]*)";
             List<Record> records = new List<Record>();
             if (text.Split('\n').Length % 3 != 0 || Regex.Replace(text, pattern, "").Length != 0)
                 throw new ArgumentOutOfRangeException("text", "Одна или несколько записей содержат неполные данные.");
