@@ -41,5 +41,19 @@ public class AppTest {
 		assertEquals( "0\t0", App.e4(new int[] { }));
 	}
 
+	@Test
+	public void testE5() {
+		assertEquals( "1", App.e5(new int[] {0, -1, -1, -1, 123, 123, 1}));
+		assertEquals( "0", App.e5(new int[] {-1, -1, -1}));
+		assertEquals( "0", App.e5(new int[] {0, 0}));
+		assertEquals( "0", App.e5(new int[] { }));
+	}
 
+	@Test
+	public void testE6() {
+		assertEquals( "-1000 -22 -2", App.e6(new int[] {0, -1, -2, -22, 123, 124, -1000}));
+		assertEquals( "-2", App.e6(new int[] {-1, -2, -1}));
+		assertEquals( "", App.e6(new int[] {0, 0}));
+		assertEquals( "", App.e6(new int[] { }));
+	}
 }

@@ -67,6 +67,30 @@ public class App {
 		return String.format("%d\t%d", sum, cnt);
 
 	}
+	
+	public static String e5(int[] A) {
+		int min = Integer.MAX_VALUE ;
+		for (int i : A) {
+			if (i > 0 && min > i)
+				min = i;
+		}
+		if (min == Integer.MAX_VALUE)
+			min = 0;
+		return "" + min;
+	}
+
+	public static String e6(int[] A) {
+		String ret = null;
+		for (int i : A) {
+			if (i < 0 && i % 2 == 0 && ret != null)
+				ret = String.format("%d %s", i, ret);
+			else if (i < 0 && i % 2 == 0 && ret == null)
+				ret = String.format("%d", i);
+		}
+		if (ret == null)
+			ret = "";
+		return ret;
+	}
 	public static void main(String[] args) {
 		try (
 			InputStreamReader rin = new InputStreamReader(System.in);
@@ -99,7 +123,7 @@ public class App {
 			}
 			System.out.println(e3(ch, A));
 			*/
-			
+
 			/* 
 			int cnt = sc.nextInt();
 			int[] A = new int[cnt];
@@ -109,6 +133,26 @@ public class App {
 			}
 			System.out.println(e4(A));
 			*/
+
+			/* 
+			int cnt = sc.nextInt();
+			int[] A = new int[cnt];
+			for (int i = 0; i < A.length; i++) {
+				A[i] = sc.nextInt();
+				sc.nextLine();
+			}
+			System.out.println(e5(A));
+			*/
+			
+			/* 
+			int cnt = sc.nextInt();
+			int[] A = new int[cnt];
+			for (int i = 0; i < A.length; i++) {
+				A[i] = sc.nextInt();
+				sc.nextLine();
+			}
+			System.out.println(e6(A));
+			 */
 		}
 		catch(IOException ex)
 		{
